@@ -1,8 +1,13 @@
 {
+  "bt": "none",
   "modulation": "lora",
   "frequency": 433050000,
   "txpwr": 15,
   "spread_factor": 7,
+  "afcbw": 250,
+  "rxbw": 250,
+  "bitrate": 300000,
+  "fdev": 200000,
   "coding_rate": 5,
   "bandwidth": 125,
   "crc": true,

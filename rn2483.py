@@ -10,10 +10,15 @@ BAUDRATE: int = 57600
 class Parameters:
     """RN2483 configuration parameters."""
 
-    modulation: str = "lora"
+    modulation: str = "fsk"
     frequency: int = 433050000
     txpwr: int = 15
     spread_factor: int = 7
+    bitrate: int = 300000
+    afcbw: int = 250
+    rxbw: int = 250
+    freqdev: int = 5000
+    bt: str = "none"
     coding_rate: int = 8  # 5 - 8 (becomes denominator of the coding rate fraction)
     bandwidth: int = 500
     crc: bool = True
@@ -27,10 +32,15 @@ class Parameters:
             config = json.load(file)
 
         return cls(
+            bt=config["bt"],
             modulation=config["modulation"],
             frequency=config["frequency"],
             txpwr=config["txpwr"],
             spread_factor=config["spread_factor"],
+            afcbw=config["afcbw"],
+            rxbw=config["rxbw"],
+            bitrate=config["bitrate"],
+            freqdev=config["freqdev"],
             coding_rate=config["coding_rate"],
             bandwidth=config["bandwidth"],
             crc=config["crc"],
@@ -103,35 +113,47 @@ class Radio:
         self._write(f"radio set mod {self.params.modulation}")
         if not self._wait_for_ok():
             return False
-
         self._write(f"radio set freq {self.params.frequency}")
         if not self._wait_for_ok():
             return False
         self._write(f"radio set pwr {self.params.txpwr}")
         if not self._wait_for_ok():
             return False
-        self._write(f"radio set sf sf{self.params.spread_factor}")
-        if not self._wait_for_ok():
-            return False
-        self._write(f"radio set cr 4/{self.params.coding_rate}")
-        if not self._wait_for_ok():
-            return False
-        self._write(f"radio set bw {self.params.bandwidth}")
-        if not self._wait_for_ok():
-            return False
-        self._write(f"radio set crc {'on' if self.params.crc else 'off'}")
-        if not self._wait_for_ok():
-            return False
-        self._write(f"radio set iqi {'on' if self.params.iqi else 'off'}")
-        if not self._wait_for_ok():
-            return False
         self._write(f"radio set sync {str(hex(self.params.sync))[2:]}")
         if not self._wait_for_ok():
             return False
-        self._write(f"radio set prlen {self.params.preamble}")
-        if not self._wait_for_ok():
-            return False
-
+        if self.params.modulation == "lora":
+            self._write(f"radio set sf sf{self.params.spread_factor}")
+            if not self._wait_for_ok():
+                return False
+            self._write(f"radio set cr 4/{self.params.coding_rate}")
+            if not self._wait_for_ok():
+                return False
+            self._write(f"radio set bw {self.params.bandwidth}")
+            if not self._wait_for_ok():
+                return False
+            self._write(f"radio set crc {'on' if self.params.crc else 'off'}")
+            if not self._wait_for_ok():
+                return False
+            self._write(f"radio set iqi {'on' if self.params.iqi else 'off'}")
+            if not self._wait_for_ok():
+                return False
+        elif self.params.modulation == "fsk":
+            self._write(f"radio set afcbw {self.params.afcbw}")
+            if not self._wait_for_ok():
+                return False
+            self._write(f"radio set rxbw {self.params.rxbw}")
+            if not self._wait_for_ok():
+                return False
+            self._write(f"radio set bitrate {self.params.bitrate}")
+            if not self._wait_for_ok():
+                return False
+            self._write(f"radio set fdev {self.params.freqdev}")
+            if not self._wait_for_ok():
+                return False
+            self._write(f"radio set prlen {self.params.preamble}")
+            if not self._wait_for_ok():
+                return False
         return True
 
     def snr(self) -> str:
