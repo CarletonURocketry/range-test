@@ -2,8 +2,9 @@ import sys
 from rn2483 import Parameters, Radio
 import time
 
+CALLSIGN: str = "??????"
 TRANSMIT_DATA: str = (
-    "VA3INI - This is a test message to test the functionality of the RN2483 transceiver with a long packet containing plenty of data - VA3INI - Packet number follows"
+    f"{CALLSIGN} - This is a test message to test the functionality of the RN2483 transceiver with a long packet containing plenty of data - {CALLSIGN} - Packet number follows"
 )
 
 
